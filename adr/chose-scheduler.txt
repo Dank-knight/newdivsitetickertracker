@@ -1,0 +1,13 @@
+Title: Choosing scheduler
+
+Status (proposed, accepted, rejected, deprecated, superseded):
+    accepted
+
+Context (What is the issue that we're seeing that is motivating this decision or change?):
+    I need just something to start work of little tool just for fun
+
+Decision (What is the change that we're proposing and/or doing?):
+    I propose just to create some job that would execute some service logic.
+
+Consequences (What becomes easier or more difficult to do because of this change?):
+    I have some job that just works, created by example in the internet.
