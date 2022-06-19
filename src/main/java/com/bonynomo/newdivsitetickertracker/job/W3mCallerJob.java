@@ -19,7 +19,6 @@ public class W3mCallerJob implements Job {
         Process proc = rt.exec(commands);
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
         BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         // Read the output from the command

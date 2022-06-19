@@ -1,0 +1,40 @@
+# ADR {X}: {Brief ADR Title}
+
+## Status
+    Choose a status" [Proposed | Accepted | Deprecated | Superseded]
+    If deprecated, include rationale. If superseded, include link to the new ADR.
+
+## Context & Problem Statement
+    Explain the circumstances under which the decision was made. This should be a series of simple, factual statements.
+Describe relevant architecture influencers such as technology, skills, previous decisions, and the business or
+political climate among others.
+    Describe the context and problem statement, e.g., in free form using two to three sentences. You may want to
+articulate the problem in form of a question.
+    The intent of this Architecture Decision, is to make a decision on << Architecture Decision Title as a question.
+    The decision will take architecture principles and drivers into consideration when evaluating the different options.
+    A clear decision will be made together with its consequences and actions.
+
+## Decision Drivers
+    The following Architecture Principles and drivers has an influence on the decision making between the different options:
+    List all the drivers / goals / principles that has an influence on the decision.
+
+## Considered Options
+   The following section contains the options being considered on <<Decision: Title:
+   Option 1:
+   Option 2:
+
+## Evaluate Options
+   The following section makes use of the Architecture Principles and drivers to evaluate each of the proposed solutions:
+
+   Architecture Principles and Drivers | Option 1 | Option 2
+    ---------------------------------- | -------- | --------
+    ---------------------------------- | -------- | --------
+    + Positive, ! Warning, i Neutral, - Negative
+
+## Decision
+    This section describes our response to these forces. It is stated in full sentences, with active voice. "We will ..."
+    Outcome: Provide the outcome of the architecture decision that was taken.
+    Consequences: What becomes easier or more difficult to do because of this change?
+
+Reference
+    Provide a list of references.
