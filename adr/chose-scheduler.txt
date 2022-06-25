@@ -26,9 +26,21 @@ Considered Options
         - Use spring @Scheduled annotation with some 'randoming'. @Scheduled(cron="0 ${random.int[0,30]} 4 * * ?")
 
 
+Evaluate Options
+   Architecture Principles and Drivers | Option 1 | Option 2 | Option 3 |
+    ---------------------------------- | -------- | -------- | -------- |
+    Simple                             |     -    |     -    |     +    |
+    ---------------------------------- | -------- | -------- | -------- |
+    Easy to re-configure               |    +     |     +    |     +    |
+    ---------------------------------- | -------- | -------- | -------- |
+    Reusable                           |    i     |     i    |     i    |
+    ---------------------------------- | -------- | -------- | -------- |
+                                       |          |          |          |
+    ---------------------------------- | -------- | -------- | -------- |
+    + Positive, ! Warning, i Neutral, - Negative
 
 Decision (What is the change that we're proposing and/or doing?):
-    There are different ways to do this. First one is to create a job with time spread with pure java.
+    Go with @Scheduled annotation. It is simple and configurable. So @Autowired will work.
 
 Consequences (What becomes easier or more difficult to do because of this change?):
     I have some job that just works, created by example in the internet.
