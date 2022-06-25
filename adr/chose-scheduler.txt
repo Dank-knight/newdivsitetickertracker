@@ -1,13 +1,46 @@
 Title: Choosing scheduler
 
 Status (proposed, accepted, rejected, deprecated, superseded):
-    accepted
+    Proposed
 
-Context (What is the issue that we're seeing that is motivating this decision or change?):
-    I need just something to start work of little tool just for fun
+Context & Problem Statement (What is the issue that we're seeing that is motivating this decision or change?):
+    To make the tool work - I need to check if there are any new articles were posted. If so - process them.
+    I need to create some cron job, that would make calls, but with some spread in time.
+    Like every day at 19:00 +- 15 minutes. Previously I tried to use quartz, but it didn't work. I could not use spring
+    injections, because quartz is not spring bean. Also, I did not find a way to set the 15-min spread.
+
+    How to make job work with spread and spring injection ?
+
+Decision Drivers
+    - I need to use spring injection.
+    - I need to create job with time spread.
+    - It has to be simple and configurable.
+
+Considered Options
+    Option 1:
+        - Use quartz. Put all logic in job's execute method. There are some risks. I am not sure how to put all
+            logic in job's execute method and database access logic as well.
+    Option 2:
+        - Use pure java.
+    Option 3:
+        - Use spring @Scheduled annotation with some 'randoming'. @Scheduled(cron="0 ${random.int[0,30]} 4 * * ?")
+
+
+Evaluate Options
+   Architecture Principles and Drivers | Option 1 | Option 2 | Option 3 |
+    ---------------------------------- | -------- | -------- | -------- |
+    Simple                             |     -    |     -    |     +    |
+    ---------------------------------- | -------- | -------- | -------- |
+    Easy to re-configure               |    +     |     +    |     +    |
+    ---------------------------------- | -------- | -------- | -------- |
+    Reusable                           |    i     |     i    |     i    |
+    ---------------------------------- | -------- | -------- | -------- |
+                                       |          |          |          |
+    ---------------------------------- | -------- | -------- | -------- |
+    + Positive, ! Warning, i Neutral, - Negative
 
 Decision (What is the change that we're proposing and/or doing?):
-    I propose just to create some job that would execute some service logic.
+    Go with @Scheduled annotation. It is simple and configurable. So @Autowired will work.
 
 Consequences (What becomes easier or more difficult to do because of this change?):
     I have some job that just works, created by example in the internet.
