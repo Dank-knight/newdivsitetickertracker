@@ -15,4 +15,8 @@ public class BaseExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     }
 
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<Object> handle(Exception ex, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getLocalizedMessage());
+    }
 }
