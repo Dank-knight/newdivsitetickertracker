@@ -14,5 +14,5 @@ public class TickerDto {
     private String id;
     private String symbol;
     private String dateIntroduced;
-    private boolean isActive;
+    private Boolean isActive;
 }
