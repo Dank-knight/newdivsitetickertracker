@@ -67,12 +67,15 @@ public class W3mService {
         List<String> allArticleLikeStrings = pageAsString.lines()
                 .filter(line -> line.startsWith("[") && line.endsWith("]"))
                 .collect(Collectors.toList());
+        log.debug("Found {} article like strings", allArticleLikeStrings.size());
         return cleanUpArticleTitles(allArticleLikeStrings);
     }
 
     private List<String> cleanUpArticleTitles(List<String> titles) {
+        log.debug("Clean up article titles: {}", titles);
         titles.removeIf(title -> title.startsWith("[cropped-"));
         titles.removeIf(title -> title.startsWith("[Subscribe"));
+        log.debug("Clean up article titles: {}", titles);
         return titles;
     }
 
@@ -80,8 +83,8 @@ public class W3mService {
         Ticker ticker = TickerMapper.INSTANCE.tickerDtoToTicker(tickerDto);
         if (tickerRepo.findBySymbol(ticker.getSymbol()) == null) {
             Ticker saved = tickerRepo.save(ticker);
+            log.debug("Saved ticker: {}", saved);
             return TickerMapper.INSTANCE.tickerToTickerDto(saved);
-
         } else {
             throw new IllegalArgumentException("Ticker already exists");
         }
@@ -89,20 +92,28 @@ public class W3mService {
 
     public List<TickerDto> getAllTickers() {
         List<Ticker> tickers = tickerRepo.findAll();
+        log.debug("Found {} tickers", tickers.size());
         List<TickerDto> tickerDtos = new ArrayList<>();
         for (Ticker t : tickers) {
             TickerDto tickerDto = TickerMapper.INSTANCE.tickerToTickerDto(t);
             tickerDtos.add(tickerDto);
         }
+        log.debug("Found {} tickers", tickerDtos.size());
         return tickerDtos;
     }
 
     public void deleteAllTickers() {
+        log.debug("Deleting all tickers");
         tickerRepo.deleteAll();
     }
 
     public void init() {
-        tickerRepo.deleteAll();
+        deleteAllTickers();
+        saveTickersFromInitialArticle();
+    }
+
+    private void saveTickersFromInitialArticle() {
+        log.debug("Starting to parse initial tickers from resources file");
         List<String> strings = parseInitTickers();
         for (String string : strings) {
             Ticker ticker = new Ticker();
@@ -110,12 +121,15 @@ public class W3mService {
             ticker.setDateIntroduced(DATE_INTRODUCED);
             ticker.setIsActive(true);
             tickerRepo.save(ticker);
+            log.debug("Saved ticker: {}", ticker);
         }
+        log.debug("Finished parsing initial tickers from resources file");
     }
 
     private List<String> parseInitTickers() {
         try {
             File file = loadInitTickersFile();
+            log.debug("Parsing initial tickers from file: {}", file.getAbsolutePath());
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 return br.lines().collect(Collectors.toList());
             }
