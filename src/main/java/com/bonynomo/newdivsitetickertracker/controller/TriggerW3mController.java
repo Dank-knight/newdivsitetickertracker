@@ -28,11 +28,8 @@ public class TriggerW3mController {
 
     @GetMapping("/trigger")
     public String getW3mOutput() {
-        String w3mOutput = w3mService.getW3mOutput();
-        log.info("W3m output: {}", w3mOutput);
-        List<String> titles = w3mService.extractArticleTitles(w3mOutput);
-        titles.forEach(title -> log.info("Title: {}", title));
-        return w3mOutput;
+        w3mService.init();
+        return "lalala";
     }
 
     @PostMapping("/ticker")

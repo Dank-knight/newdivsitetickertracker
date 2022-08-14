@@ -1,4 +1,4 @@
-package com.bonynomo.newdivsitetickertracker.parce;
+package com.bonynomo.newdivsitetickertracker.parse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
