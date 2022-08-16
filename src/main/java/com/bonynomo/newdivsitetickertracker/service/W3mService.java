@@ -116,7 +116,9 @@ public class W3mService {
     }
 
     private String urlFromTitle(String title) {
-        return url + title.replace(" ", "-").replace("\\(", "").replace("\\)", "").replace("\\/", "-") + "/";
+        String urlFromTitle = url + title.replace(" ", "-").replace("(", "").replace(")", "").replace("/", "-");
+        log.info("Url from title: {}", urlFromTitle);
+        return urlFromTitle;
     }
 
     private List<String> createMockedTitles() {

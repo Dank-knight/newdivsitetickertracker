@@ -31,20 +31,50 @@ public class ArticlesParser {
         return titles;
     }
 
+    //todo refactor this method
     public List<Ticker> extractTickersFromPage(String pageAsString) {
-        String dateIntroduced = getPartBetwean("Posted on ", " by ", pageAsString);
-        String dirtyTickers = getPartBetwean("The following are new companies on the list this week:", "The others – ", pageAsString);
+        System.err.println(pageAsString);
+        String dateIntroduced = getPartBetween("Posted on ", " by ", pageAsString);
+        String dirtyTickers = null;
+        String notActiveAnyMoreTickers = null;
+        if (pageAsString.contains("The following are new companies on the list this week:") && pageAsString.contains("The others – ")) {
+            dirtyTickers = getPartBetween("The following are new companies on the list this week:", "The others – ", pageAsString);
+        } else if (pageAsString.contains("The new companies to make the list this week are:") && pageAsString.contains("The remaining names ")) {
+            dirtyTickers = getPartBetween("The new companies to make the list this week are:", "The remaining names ", pageAsString);
+        } else if (pageAsString.contains("There are no new companies to make the list this week") && pageAsString.contains("The remaining names ")) {
+            notActiveAnyMoreTickers = getPartBetween("There are no new companies to make the list this week, but the following have\n" +
+                    "been removed since the last analysis:", "This list should be used to begin your research to determine if the stock meets", pageAsString);
+        } else {
+            throw new IllegalArgumentException("Could not find tickers");
+        }
         String[] aBitCleanerTickers = dirtyTickers.replace("\n", "").replace("\r", "").replace("•", "").split(" ");
+        String[] aBitCleanerNonActiveTickers = notActiveAnyMoreTickers.replace("\n", "").replace("\r", "").replace("•", "").split(" ");
         List<String> tickersAsStrings = Arrays.stream(aBitCleanerTickers).filter(s -> !s.isEmpty() && !s.equals(" ")).collect(Collectors.toList());
+        List<String> nonActiveTickersAsStrings = Arrays.stream(aBitCleanerNonActiveTickers).filter(s -> !s.isEmpty() && !s.equals(" ")).collect(Collectors.toList());
         ArrayList<Ticker> tickers = new ArrayList<>();
-        for (String t : tickersAsStrings) {
-            Ticker constructedTicker = Ticker.builder().isActive(true).symbol(t).dateIntroduced(dateIntroduced).build();
-            tickers.add(constructedTicker);
+        if (!tickersAsStrings.isEmpty()) {
+            for (String t : tickersAsStrings) {
+                Ticker constructedTicker = Ticker.builder()
+                        .isActive(true)
+                        .symbol(t)
+                        .dateIntroduced(dateIntroduced)
+                        .build();
+                tickers.add(constructedTicker);
+            }
+        } else {
+            for (String t : nonActiveTickersAsStrings) {
+                Ticker constructedTicker = Ticker.builder()
+                        .isActive(false)
+                        .symbol(t)
+                        .dateIntroduced(dateIntroduced)
+                        .build();
+                tickers.add(constructedTicker);
+            }
         }
         return tickers;
     }
 
-    private String getPartBetwean(String fromPhrase, String toPhrase, String pageAsString) {
+    private String getPartBetween(String fromPhrase, String toPhrase, String pageAsString) {
         int fromIndex = pageAsString.indexOf(fromPhrase) + fromPhrase.length();
         int toIndex = pageAsString.indexOf(toPhrase);
         return pageAsString.substring(fromIndex, toIndex);
