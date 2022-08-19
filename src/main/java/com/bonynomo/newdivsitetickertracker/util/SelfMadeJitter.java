@@ -14,9 +14,7 @@ public class SelfMadeJitter {
     private final Random random = new SecureRandom();
 
     public void sleep30To80Sec() {
-        //todo return old delay value
-        //int delay = random.nextInt(50) + 30;
-        int delay = 1;
+        int delay = random.nextInt(50) + 30;
         log.info("The delay is {}", delay);
         try {
             log.info("Sleeping for {} sec", delay);

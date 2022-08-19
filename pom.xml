@@ -20,6 +20,7 @@
         <org.projectlombok.version>1.18.24</org.projectlombok.version>
         <org.springframework.boot.version>2.7.0</org.springframework.boot.version>
         <org.springframework.data.mongodb.core.version>2.7.1</org.springframework.data.mongodb.core.version>
+        <commons-lang3.version>3.2.2</commons-lang3.version>
     </properties>
 
 
@@ -48,6 +49,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
     </dependencies>
 

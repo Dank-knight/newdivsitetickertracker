@@ -6,7 +6,6 @@ import com.bonynomo.newdivsitetickertracker.dto.TickerDto;
 import com.bonynomo.newdivsitetickertracker.exception.UnableToInitTickersException;
 import com.bonynomo.newdivsitetickertracker.model.Ticker;
 import com.bonynomo.newdivsitetickertracker.parse.ArticlesParser;
-import com.bonynomo.newdivsitetickertracker.parse.WemResponseParser;
 import com.bonynomo.newdivsitetickertracker.repo.TickerRepo;
 import com.bonynomo.newdivsitetickertracker.util.SelfMadeJitter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -87,8 +87,13 @@ public class W3mService {
             jitter.sleep30To80Sec();
             log.info("Constructed url: {}", constructedUrl);
             String pageAsString = w3mClient.getW3mOutputByUrl(constructedUrl);
-            List<Ticker> newUndervaluedTickers = articlesParser.extractTickersFromPage(pageAsString);
-            tickerRepo.saveAll(newUndervaluedTickers);
+            Map<String, List<Ticker>> newUndervaluedTickers = articlesParser.extractTickersFromPage(pageAsString);
+            List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
+            List<Ticker> update = newUndervaluedTickers.get("Update");
+            List<Ticker> set = newUndervaluedTickers.get("Set");
+            tickerRepo.saveAll(toBeSaved);
+            tickerRepo.saveAll(update);
+            tickerRepo.saveAll(set);
         }
     }
 
@@ -119,36 +124,6 @@ public class W3mService {
         String urlFromTitle = url + title.replace(" ", "-").replace("(", "").replace(")", "").replace("/", "-");
         log.info("Url from title: {}", urlFromTitle);
         return urlFromTitle;
-    }
-
-    private List<String> createMockedTitles() {
-        List<String> strings = new ArrayList<>();
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (8/8/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (8/1/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (7/25/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (07/18/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (07/11/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (6/20/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (06/13/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (06/06/2022)");
-        strings.add("Undervalued Dividend Growth Stocks To Research This Week (05/30/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (05/23/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (05/16/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (05/09/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (04/25/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (04/17/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (04/04/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (03/27/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (03/14/2022)");
-        strings.add("Undervalued Dividend Growth Stocks to Research This Week (03/07/2022)");
-        strings.add("16 Undervalued Dividend Growth Stocks for the Week of 02/28/2022");
-        strings.add("11 Undervalued Dividend Growth Stocks for the Week of 02/21/2022");
-        strings.add("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022");
-        List<String> lowerCaseStrings = new ArrayList<>();
-        for (String s : strings) {
-            lowerCaseStrings.add(s.toLowerCase());
-        }
-        return lowerCaseStrings;
     }
 
     private List<String> getAllArticlesBeforeInitialArticle() {
