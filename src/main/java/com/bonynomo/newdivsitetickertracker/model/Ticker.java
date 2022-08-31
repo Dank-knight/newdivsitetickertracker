@@ -12,6 +12,12 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class Ticker {
 
+    public Ticker(String symbol, String dateIntroduced, Boolean isActive) {
+        this.symbol = symbol;
+        this.dateIntroduced = dateIntroduced;
+        this.isActive = isActive;
+    }
+
     @Id
     private String id;
     private String symbol;

@@ -1,11 +1,13 @@
 package com.bonynomo.newdivsitetickertracker.service;
 
+import com.bonynomo.newdivsitetickertracker.client.W3mClient;
 import com.bonynomo.newdivsitetickertracker.converter.TickerMapper;
 import com.bonynomo.newdivsitetickertracker.dto.TickerDto;
 import com.bonynomo.newdivsitetickertracker.exception.UnableToInitTickersException;
 import com.bonynomo.newdivsitetickertracker.model.Ticker;
-import com.bonynomo.newdivsitetickertracker.parce.WemResponseParser;
+import com.bonynomo.newdivsitetickertracker.parse.ArticlesParser;
 import com.bonynomo.newdivsitetickertracker.repo.TickerRepo;
+import com.bonynomo.newdivsitetickertracker.util.SelfMadeJitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,53 +33,21 @@ public class W3mService {
 
     @Value("${website}")
     private String url;
-    private final WemResponseParser commandOutputToStringParser;
     private final TickerRepo tickerRepo;
+    private final ArticlesParser articlesParser;
+    private final W3mClient w3mClient;
+    private final SelfMadeJitter jitter;
 
     @Autowired
-    public W3mService(WemResponseParser commandOutputToStringParser, TickerRepo tickerRepo) {
-        this.commandOutputToStringParser = commandOutputToStringParser;
+    public W3mService(TickerRepo tickerRepo, ArticlesParser articlesParser, W3mClient w3mClient, SelfMadeJitter jitter) {
         this.tickerRepo = tickerRepo;
+        this.articlesParser = articlesParser;
+        this.w3mClient = w3mClient;
+        this.jitter = jitter;
     }
 
     public String getW3mOutput() {
-        Process process = getW3MEExecProcess();
-        String output = null;
-        if (process != null) {
-            output = commandOutputToStringParser.parseOutputOfTheCommand(process);
-            String error = commandOutputToStringParser.parseErrorFromErrorStream(process);
-            log.info("W3m output: {}", output);
-            log.info("W3m error: {}", error);
-        }
-        return output;
-    }
-
-    private Process getW3MEExecProcess() {
-        Runtime rt = Runtime.getRuntime();
-        String[] commands = {"sh", "-c", "w3m " + url};
-        Process proc = null;
-        try {
-            proc = rt.exec(commands);
-        } catch (IOException e) {
-            log.error("Error while executing w3m command", e);
-        }
-        return proc;
-    }
-
-    public List<String> extractArticleTitles(String pageAsString) {
-        List<String> allArticleLikeStrings = pageAsString.lines()
-                .filter(line -> line.startsWith("[") && line.endsWith("]"))
-                .collect(Collectors.toList());
-        log.debug("Found {} article like strings", allArticleLikeStrings.size());
-        return cleanUpArticleTitles(allArticleLikeStrings);
-    }
-
-    private List<String> cleanUpArticleTitles(List<String> titles) {
-        log.debug("Clean up article titles: {}", titles);
-        titles.removeIf(title -> title.startsWith("[cropped-"));
-        titles.removeIf(title -> title.startsWith("[Subscribe"));
-        log.debug("Clean up article titles: {}", titles);
-        return titles;
+        return w3mClient.getW3mOutputByUrl(url);
     }
 
     public TickerDto save(TickerDto tickerDto) {
@@ -110,6 +81,82 @@ public class W3mService {
     public void init() {
         deleteAllTickers();
         saveTickersFromInitialArticle();
+        List<String> allArticlesBeforeInitialArticle = getAllArticlesBeforeInitialArticle();
+        List<String> reversedUrlsSoTheyAreInChronologicalOrder = prepareUrlsByArticles(allArticlesBeforeInitialArticle);
+        for (String constructedUrl : reversedUrlsSoTheyAreInChronologicalOrder) {
+            jitter.sleep30To80Sec();
+            log.info("Constructed url: {}", constructedUrl);
+            String pageAsString = w3mClient.getW3mOutputByUrl(constructedUrl);
+            Map<String, List<Ticker>> newUndervaluedTickers = articlesParser.extractTickersFromPage(pageAsString);
+            List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
+            List<Ticker> update = newUndervaluedTickers.get("Update");
+            List<Ticker> set = newUndervaluedTickers.get("Set");
+            save(toBeSaved);
+            save(update);
+            save(set);
+        }
+    }
+
+    private void save(List<Ticker> toBeSaved) {
+        for (Ticker ticker : toBeSaved) {
+            Ticker bySymbol = tickerRepo.findBySymbol(ticker.getSymbol());
+            if (bySymbol == null) {
+                tickerRepo.save(ticker);
+            } else {
+                bySymbol.setIsActive(ticker.getIsActive());
+                tickerRepo.save(bySymbol);
+            }
+        }
+    }
+
+    private List<String> prepareUrlsByArticles(List<String> allArticlesBeforeInitialArticle) {
+        allArticlesBeforeInitialArticle = allArticlesBeforeInitialArticle.stream().map(String::toLowerCase).collect(Collectors.toList());
+        log.debug("Found {} articles before initial article", allArticlesBeforeInitialArticle.size());
+        List<String> urlsToProcess = transformArticlesToUrls(allArticlesBeforeInitialArticle);
+        return reverseList(urlsToProcess);
+    }
+
+    private List<String> reverseList(List<String> urlsToProcess) {
+        List<String> reversedUrlsSoTheyAreInChronologicalOrder = new ArrayList<>();
+        for (int i = urlsToProcess.size() - 1; i >= 0; i--) {
+            reversedUrlsSoTheyAreInChronologicalOrder.add(urlsToProcess.get(i));
+        }
+        return reversedUrlsSoTheyAreInChronologicalOrder;
+    }
+
+    private List<String> transformArticlesToUrls(List<String> titles) {
+        List<String> urls = new ArrayList<>();
+        for (String title : titles) {
+            urls.add(urlFromTitle(title));
+        }
+        return urls;
+    }
+
+    private String urlFromTitle(String title) {
+        String urlFromTitle = url + title.replace(" ", "-").replace("(", "").replace(")", "").replace("/", "-");
+        log.info("Url from title: {}", urlFromTitle);
+        return urlFromTitle;
+    }
+
+    private List<String> getAllArticlesBeforeInitialArticle() {
+        boolean isInitArticleReqached = false;
+        ArrayList<String> titles = new ArrayList<>();
+        String urlToSerach = this.url;
+        int page = 1;
+        while (!isInitArticleReqached) {
+            if (page > 1) {
+                urlToSerach = this.url + "page/" + page;
+            }
+            jitter.sleep30To80Sec();
+            String w3mOutputByUrl = w3mClient.getW3mOutputByUrl(urlToSerach);
+            List<String> extractedTitles = articlesParser.extractArticleTitles(w3mOutputByUrl);
+            titles.addAll(extractedTitles);
+            page++;
+            if (extractedTitles.contains("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022")) {
+                isInitArticleReqached = true;
+            }
+        }
+        return titles;
     }
 
     private void saveTickersFromInitialArticle() {
