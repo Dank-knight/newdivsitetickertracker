@@ -37,7 +37,7 @@ public class W3mClient {
             output = commandOutputToStringParser.parseOutputOfTheCommand(process);
             String error = commandOutputToStringParser.parseErrorFromErrorStream(process);
             log.info("W3m output: {}", output);
-            if (error != null) {
+            if (error != null && !error.isEmpty()) {
                 log.info("W3m error: {}", error);
             }
         }

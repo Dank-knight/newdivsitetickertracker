@@ -91,9 +91,21 @@ public class W3mService {
             List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
             List<Ticker> update = newUndervaluedTickers.get("Update");
             List<Ticker> set = newUndervaluedTickers.get("Set");
-            tickerRepo.saveAll(toBeSaved);
-            tickerRepo.saveAll(update);
-            tickerRepo.saveAll(set);
+            save(toBeSaved);
+            save(update);
+            save(set);
+        }
+    }
+
+    private void save(List<Ticker> toBeSaved) {
+        for (Ticker ticker : toBeSaved) {
+            Ticker bySymbol = tickerRepo.findBySymbol(ticker.getSymbol());
+            if (bySymbol == null) {
+                tickerRepo.save(ticker);
+            } else {
+                bySymbol.setIsActive(ticker.getIsActive());
+                tickerRepo.save(bySymbol);
+            }
         }
     }
 
