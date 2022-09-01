@@ -94,7 +94,7 @@ public class ArticleService {
             List<Ticker> set = newUndervaluedTickers.get("Set");
             save(toBeSaved);
             save(update);
-            save(set);
+            saveSetOfRelevantTickers(set);
         }
     }
 
@@ -108,6 +108,17 @@ public class ArticleService {
                 tickerRepo.save(bySymbol);
             }
         }
+    }
+
+    private void saveSetOfRelevantTickers(List<Ticker> set) {
+        List<Ticker> allTickers = tickerRepo.findAll();
+        for (Ticker ticker : allTickers) {
+            if (!set.contains(ticker)) {
+                ticker.setIsActive(false);
+                tickerRepo.save(ticker);
+            }
+        }
+        tickerRepo.saveAll(set);
     }
 
     private List<String> prepareUrlsByArticles(List<String> allArticlesBeforeInitialArticle) {
