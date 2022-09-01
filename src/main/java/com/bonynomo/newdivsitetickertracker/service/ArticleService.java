@@ -26,20 +26,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class W3mService {
+public class ArticleService {
 
     //https://dividendstockpile.com/10-undervalued-dividend-growth-stocks-to-research-the-week-of-02-14-2022/
     public static final String DATE_INTRODUCED = "14.02.2022";
 
     @Value("${website}")
     private String url;
+
     private final TickerRepo tickerRepo;
     private final ArticlesParser articlesParser;
     private final W3mClient w3mClient;
     private final SelfMadeJitter jitter;
 
     @Autowired
-    public W3mService(TickerRepo tickerRepo, ArticlesParser articlesParser, W3mClient w3mClient, SelfMadeJitter jitter) {
+    public ArticleService(TickerRepo tickerRepo, ArticlesParser articlesParser, W3mClient w3mClient, SelfMadeJitter jitter) {
         this.tickerRepo = tickerRepo;
         this.articlesParser = articlesParser;
         this.w3mClient = w3mClient;
@@ -188,5 +189,17 @@ public class W3mService {
 
     private File loadInitTickersFile() throws FileNotFoundException {
         return ResourceUtils.getFile("classpath:" + "initial_tickers.txt");
+    }
+
+    public List<TickerDto> getAllActiveTickers() {
+        List<Ticker> tickers = tickerRepo.findAllByIsActiveTrue();
+        log.debug("Found {} tickers", tickers.size());
+        List<TickerDto> tickerDtos = new ArrayList<>();
+        for (Ticker t : tickers) {
+            TickerDto tickerDto = TickerMapper.INSTANCE.tickerToTickerDto(t);
+            tickerDtos.add(tickerDto);
+        }
+        log.debug("Found {} tickers", tickerDtos.size());
+        return tickerDtos;
     }
 }

@@ -1,58 +1,34 @@
 package com.bonynomo.newdivsitetickertracker.controller;
 
-import com.bonynomo.newdivsitetickertracker.dto.TickerDto;
-import com.bonynomo.newdivsitetickertracker.service.W3mService;
+import com.bonynomo.newdivsitetickertracker.service.ArticleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Slf4j
-@RestController()
+@RestController
 @RequestMapping("dividendstockpile")
 public class TriggerW3mController {
 
-    private final W3mService w3mService;
+    private final ArticleService articleService;
 
     @Autowired
-    public TriggerW3mController(W3mService w3mService) {
-        this.w3mService = w3mService;
+    public TriggerW3mController(ArticleService articleService) {
+        this.articleService = articleService;
     }
 
     @GetMapping("/trigger")
     public String getW3mOutput() {
-        w3mService.init();
-        return "lalala";
-    }
-
-    @PostMapping("/ticker")
-    public ResponseEntity<TickerDto> save(@RequestBody TickerDto tickerDto) {
-        TickerDto saved = w3mService.save(tickerDto);
-        return ResponseEntity.ok(saved);
-    }
-
-    @GetMapping("/tickers")
-    public ResponseEntity<List<TickerDto>> getAllTickers() {
-        List<TickerDto> tickers = w3mService.getAllTickers();
-        return ResponseEntity.ok(tickers);
-    }
-
-    @DeleteMapping("/tickers")
-    public ResponseEntity<String> deleteAllTickers() {
-        w3mService.deleteAllTickers();
-        return ResponseEntity.ok("All tickers deleted");
+        return "trigger check of new article";
     }
 
     @PostMapping("/init")
     public ResponseEntity<String> init() {
-        w3mService.init();
+        articleService.init();
         return ResponseEntity.ok("Init done");
     }
 }
