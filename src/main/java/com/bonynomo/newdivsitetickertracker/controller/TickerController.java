@@ -49,5 +49,4 @@ public class TickerController {
         List<TickerDto> tickers = articleService.getAllActiveTickers();
         return ResponseEntity.ok(tickers);
     }
-
 }
