@@ -111,8 +111,8 @@ public class ArticleService {
     }
 
     private void saveSetOfRelevantTickers(List<Ticker> set) {
-        List<Ticker> allTickers = tickerRepo.findAll();
-        for (Ticker ticker : allTickers) {
+        List<Ticker> allPresumablyActiveTickers = tickerRepo.findAllByIsActiveTrue();
+        for (Ticker ticker : allPresumablyActiveTickers) {
             if (!set.contains(ticker)) {
                 ticker.setIsActive(false);
                 tickerRepo.save(ticker);
