@@ -7,92 +7,155 @@
 	},
 	"item": [
 		{
-			"name": "manual trigger",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "127.0.0.1:8080/dividendstockpile/trigger",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"dividendstockpile",
-						"trigger"
-					]
+			"name": "w3m",
+			"item": [
+				{
+					"name": "manual trigger",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/dividendstockpile/trigger",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"dividendstockpile",
+								"trigger"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "init",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/dividendstockpile/init",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"dividendstockpile",
+								"init"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "get all tikers",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "127.0.0.1:8080/dividendstockpile/tickers",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"dividendstockpile",
-						"tickers"
-					]
+			"name": "tickers",
+			"item": [
+				{
+					"name": "get all tikers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/tickers",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"tickers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all active tickers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "127.0.0.1:8080/tickers/active",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"tickers",
+								"active"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save a ticker",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"symbol\": \"FNF\",\n    \"dateIntroduced\": \"21.02.2022\",\n    \"isActive\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "127.0.0.1:8080/tickers/ticker",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"tickers",
+								"ticker"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete all tickers",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/dividendstockpile/tickers",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"dividendstockpile",
+								"tickers"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "save a ticker",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "127.0.0.1:8080/dividendstockpile/ticker",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"dividendstockpile",
-						"ticker"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "init",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "127.0.0.1:8080/dividendstockpile/init",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"dividendstockpile",
-						"init"
-					]
-				}
-			},
-			"response": []
+			]
 		},
 		{
 			"name": "ping",
@@ -111,29 +174,6 @@
 					"port": "8080",
 					"path": [
 						"ping"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "delete all tickers",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8080/dividendstockpile/tickers",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"dividendstockpile",
-						"tickers"
 					]
 				}
 			},
