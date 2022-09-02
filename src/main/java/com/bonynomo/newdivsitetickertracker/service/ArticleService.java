@@ -47,7 +47,7 @@ public class ArticleService {
         this.jitter = jitter;
     }
 
-    public String getW3mOutput() {
+    public String hitMainPage() {
         return w3mClient.getW3mOutputByUrl(url);
     }
 

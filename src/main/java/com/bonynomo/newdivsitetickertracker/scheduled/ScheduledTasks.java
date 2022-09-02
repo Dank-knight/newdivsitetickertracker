@@ -32,7 +32,7 @@ public class ScheduledTasks {
     public void reportCurrentTime() {
         selfMadeJitter.sleep30To80Sec();
         log.info("The time is now {}", dateFormat.format(new Date()));
-        String w3mOutput = articleService.getW3mOutput();
+        String w3mOutput = articleService.hitMainPage();
         log.info("W3m output: {}", w3mOutput);
     }
 
