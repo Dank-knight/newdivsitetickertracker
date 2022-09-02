@@ -16,7 +16,7 @@ class ArticlesParserTest {
     private final ArticlesParser articlesParser = new ArticlesParser();
 
     @Test
-    void when_PageContainsTickersDividedByBulletPoints_expect_tickersAreExtracted() {
+    void when_PageContainsTickersDividedByBulletPoints_Expect_TickersAreExtracted() {
         String pageAsString = "The following are new companies on the list this week: \n" +
                 "• MRK\n" +
                 "• SBUX\n" +
@@ -42,7 +42,7 @@ class ArticlesParserTest {
     }
 
     @Test
-    void when_PageContainsTickersDividedByComasAndAndWord_expect_tickersAreExtracted() {
+    void when_PageContainsTickersDividedByComasAndAndWord_Expect_TickersAreExtracted() {
         String pageAsString = "The new companies to make the list this week are:\n" +
                 "\n" +
                 "BAC, BR, CMI, MSM, TSCO, UGI, and WBA\n" +
@@ -74,7 +74,7 @@ class ArticlesParserTest {
     }
 
     @Test
-    void when_PageContainsTickersDividedByComasAnd_expect_tickersAreExtracted() {
+    void when_PageContainsTickersDividedByComasAnd_Expect_TickersAreExtracted() {
         String pageAsString = "The new companies to make the list this week are:\n" +
                 "\n" +
                 "AVGO, BLK, IP, JPM, PRU, TXN, V\n" +
@@ -106,7 +106,7 @@ class ArticlesParserTest {
     }
 
     @Test
-    void when_PageContainsTickersDividedByComasAndHasAnExtraComaInTheEnd_expect_tickersAreExtracted() {
+    void when_PageContainsTickersDividedByComasAndHasAnExtraComaInTheEnd_Expect_TickersAreExtracted() {
 
         String pageAsString = "New on the list this week: AOS, AVGO, BLK, INTC, TXN,\n" +
                 "\n" +
@@ -134,7 +134,7 @@ class ArticlesParserTest {
     }
 
     @Test
-    void when_PageContainsMultipleNewLineCharsbetweenTickers_expect_tickersAreExtracted() {
+    void when_PageContainsMultipleNewLineCharsBetweenTickers_Expect_TickersAreExtracted() {
         String pageAsString = "Stocks Listed: AOS, APD, AVGO, BAC, BLK, BR, DLR, FNF, HBI, HD, IIPR, INTC,\n" +
                 "JPM, LEG, MDT, MMM, MSM, RY, SBUX, SMG, SPG, STOR, SWK, TD, TROW, TSCO, TXN,\n" +
                 "UGI, V, WBA\n" +
@@ -208,7 +208,7 @@ class ArticlesParserTest {
     }
 
     @Test
-    void testToDayMonthYear() {
+    void when_RawDateIntroducesFollowsPatternOfCreatorOfArticle_Expect_ConversionToPatternILikeMore() {
         String rawDateIntroducedExample = "August 7, 2022";
         String dateIntroduced = articlesParser.toDayMonthYear(rawDateIntroducedExample);
         assertThat(dateIntroduced, is("07.08.2022"));
