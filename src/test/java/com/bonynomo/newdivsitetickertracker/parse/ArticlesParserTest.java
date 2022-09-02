@@ -212,6 +212,5 @@ class ArticlesParserTest {
         String rawDateIntroducedExample = "August 7, 2022";
         String dateIntroduced = articlesParser.toDayMonthYear(rawDateIntroducedExample);
         assertThat(dateIntroduced, is("07.08.2022"));
-
     }
 }
