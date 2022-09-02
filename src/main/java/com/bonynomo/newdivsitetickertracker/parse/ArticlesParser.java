@@ -21,6 +21,23 @@ public class ArticlesParser {
     public static final String DISCLAIMER = "This list should be used to begin your research to determine if the stock meets";
     public static final String STOCKS_LISTED = "Stocks Listed:";
     public static final Set<String> ALL_LETTERS_IN_UPPER_CASE = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"));
+    public static Map<String, String> MONTH_NUMBER_BY_NAME;
+
+    public ArticlesParser() {
+        MONTH_NUMBER_BY_NAME = new HashMap<>();
+        MONTH_NUMBER_BY_NAME.put("January", "01");
+        MONTH_NUMBER_BY_NAME.put("February", "02");
+        MONTH_NUMBER_BY_NAME.put("March", "03");
+        MONTH_NUMBER_BY_NAME.put("April", "04");
+        MONTH_NUMBER_BY_NAME.put("May", "05");
+        MONTH_NUMBER_BY_NAME.put("June", "06");
+        MONTH_NUMBER_BY_NAME.put("July", "07");
+        MONTH_NUMBER_BY_NAME.put("August", "08");
+        MONTH_NUMBER_BY_NAME.put("September", "09");
+        MONTH_NUMBER_BY_NAME.put("October", "10");
+        MONTH_NUMBER_BY_NAME.put("November", "11");
+        MONTH_NUMBER_BY_NAME.put("December", "12");
+    }
 
     public List<String> extractArticleTitles(String pageAsString) {
         List<String> allArticleLikeStrings = pageAsString.lines().filter(line -> line.matches("\\d+ Undervalued Dividend Growth Stocks.*") || line.matches("Undervalued Dividend Growth Stocks.*")).collect(Collectors.toList());
@@ -37,7 +54,10 @@ public class ArticlesParser {
     }
 
     public Map<String, List<Ticker>> extractTickersFromPage(String pageAsString) {
-        String dateIntroduced = getPartBetween("Posted on ", " by ", pageAsString);
+        String tawDateIntroduced = getPartBetween("Posted on ", " by ", pageAsString);
+        log.debug("Raw date introduced: {}", tawDateIntroduced);
+        String dateIntroduced = toDayMonthYear(tawDateIntroduced);
+        log.debug("Date introduced: {}", tawDateIntroduced);
         String dirtyTickers;
         String notActiveAnyMoreTickers;
         Map<String, List<Ticker>> actionsForTickersLists = new HashMap<>();
@@ -76,6 +96,17 @@ public class ArticlesParser {
             throw new IllegalArgumentException("Could not find tickers");
         }
         return actionsForTickersLists;
+    }
+
+    public String toDayMonthYear(String tawDateIntroduced) {
+        String[] split = tawDateIntroduced.split(" ");
+        String day = split[1].replace(",", "");
+        if (day.length() == 1) {
+            day = "0" + day;
+        }
+        String month = String.valueOf(MONTH_NUMBER_BY_NAME.get(split[0]));
+        String year = split[2];
+        return day + "." + month + "." + year;
     }
 
     public List<Ticker> convertDirtyTickersToListOfTickers(String dateIntroduced, String dirtyTickers, boolean isActive) {
