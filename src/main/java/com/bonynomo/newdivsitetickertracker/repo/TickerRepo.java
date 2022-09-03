@@ -9,5 +9,5 @@ public interface TickerRepo extends MongoRepository<Ticker, String> {
 
     Ticker findBySymbol(String symbol);
 
-    List<Ticker> findAllByIsActiveTrue();
+    List<Ticker> findTickerByIsActiveTrue();
 }

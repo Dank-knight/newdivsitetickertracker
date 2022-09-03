@@ -92,9 +92,16 @@ public class ArticleService {
             List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
             List<Ticker> update = newUndervaluedTickers.get("Update");
             List<Ticker> set = newUndervaluedTickers.get("Set");
-            save(toBeSaved);
-            save(update);
-            saveSetOfRelevantTickers(set);
+            if (toBeSaved != null) {
+                save(toBeSaved);
+            } else if (update != null) {
+                save(update);
+            } else if (set != null) {
+                saveSetOfRelevantTickers(set);
+            } else {
+                log.error("No tickers to be saved, updated or set");
+                throw new UnableToInitTickersException("No tickers to be saved, updated or set");
+            }
         }
     }
 
@@ -111,7 +118,7 @@ public class ArticleService {
     }
 
     private void saveSetOfRelevantTickers(List<Ticker> set) {
-        List<Ticker> allPresumablyActiveTickers = tickerRepo.findAllByIsActiveTrue();
+        List<Ticker> allPresumablyActiveTickers = tickerRepo.findTickerByIsActiveTrue();
         for (Ticker ticker : allPresumablyActiveTickers) {
             if (!set.contains(ticker)) {
                 ticker.setIsActive(false);
@@ -203,7 +210,7 @@ public class ArticleService {
     }
 
     public List<TickerDto> getAllActiveTickers() {
-        List<Ticker> tickers = tickerRepo.findAllByIsActiveTrue();
+        List<Ticker> tickers = tickerRepo.findTickerByIsActiveTrue();
         log.debug("Found {} tickers", tickers.size());
         List<TickerDto> tickerDtos = new ArrayList<>();
         for (Ticker t : tickers) {
