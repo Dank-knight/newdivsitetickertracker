@@ -83,6 +83,7 @@ public class ArticleService {
         deleteAllTickers();
         saveTickersFromInitialArticle();
         List<String> allArticlesBeforeInitialArticle = getAllArticlesBeforeInitialArticle();
+        // todo stopped here. Should use few real titles to test in ArticleServiceTest line 46
         List<String> reversedUrlsSoTheyAreInChronologicalOrder = prepareUrlsByArticles(allArticlesBeforeInitialArticle);
         for (String constructedUrl : reversedUrlsSoTheyAreInChronologicalOrder) {
             jitter.sleep30To80Sec();
@@ -158,11 +159,11 @@ public class ArticleService {
     }
 
     private List<String> getAllArticlesBeforeInitialArticle() {
-        boolean isInitArticleReqached = false;
+        boolean isInitArticleReached = false;
         ArrayList<String> titles = new ArrayList<>();
         String urlToSerach = this.url;
         int page = 1;
-        while (!isInitArticleReqached) {
+        while (!isInitArticleReached) {
             if (page > 1) {
                 urlToSerach = this.url + "page/" + page;
             }
@@ -172,7 +173,7 @@ public class ArticleService {
             titles.addAll(extractedTitles);
             page++;
             if (extractedTitles.contains("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022")) {
-                isInitArticleReqached = true;
+                isInitArticleReached = true;
             }
         }
         return titles;
@@ -217,7 +218,6 @@ public class ArticleService {
             TickerDto tickerDto = TickerMapper.INSTANCE.tickerToTickerDto(t);
             tickerDtos.add(tickerDto);
         }
-        log.debug("Found {} tickers", tickerDtos.size());
         return tickerDtos;
     }
 }
