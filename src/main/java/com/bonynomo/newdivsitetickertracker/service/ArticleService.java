@@ -9,6 +9,7 @@ import com.bonynomo.newdivsitetickertracker.parse.ArticlesParser;
 import com.bonynomo.newdivsitetickertracker.repo.TickerRepo;
 import com.bonynomo.newdivsitetickertracker.util.SelfMadeJitter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,7 @@ public class ArticleService {
         deleteAllTickers();
         saveTickersFromInitialArticle();
         List<String> allArticlesBeforeInitialArticle = getAllArticlesBeforeInitialArticle();
+        log.debug("Found {} articles before initial article", allArticlesBeforeInitialArticle.size());
         List<String> reversedUrlsSoTheyAreInChronologicalOrder = prepareUrlsByArticles(allArticlesBeforeInitialArticle);
         for (String constructedUrl : reversedUrlsSoTheyAreInChronologicalOrder) {
             jitter.sleep30To80Sec();
@@ -92,9 +94,16 @@ public class ArticleService {
             List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
             List<Ticker> update = newUndervaluedTickers.get("Update");
             List<Ticker> set = newUndervaluedTickers.get("Set");
-            save(toBeSaved);
-            save(update);
-            saveSetOfRelevantTickers(set);
+            if (CollectionUtils.isNotEmpty(toBeSaved)) {
+                save(toBeSaved);
+            } else if (CollectionUtils.isNotEmpty(update)) {
+                save(update);
+            } else if (CollectionUtils.isNotEmpty(set)) {
+                saveSetOfRelevantTickers(set);
+            } else {
+                log.error("No tickers to be saved, updated or set");
+                throw new UnableToInitTickersException("No tickers to be saved, updated or set");
+            }
         }
     }
 
@@ -111,7 +120,7 @@ public class ArticleService {
     }
 
     private void saveSetOfRelevantTickers(List<Ticker> set) {
-        List<Ticker> allPresumablyActiveTickers = tickerRepo.findAllByIsActiveTrue();
+        List<Ticker> allPresumablyActiveTickers = tickerRepo.findTickerByIsActiveTrue();
         for (Ticker ticker : allPresumablyActiveTickers) {
             if (!set.contains(ticker)) {
                 ticker.setIsActive(false);
@@ -151,21 +160,22 @@ public class ArticleService {
     }
 
     private List<String> getAllArticlesBeforeInitialArticle() {
-        boolean isInitArticleReqached = false;
+        boolean isInitArticleReached = false;
         ArrayList<String> titles = new ArrayList<>();
         String urlToSerach = this.url;
         int page = 1;
-        while (!isInitArticleReqached) {
+        while (!isInitArticleReached) {
             if (page > 1) {
                 urlToSerach = this.url + "page/" + page;
             }
+            log.info("Url to search: {}", urlToSerach);
             jitter.sleep30To80Sec();
             String w3mOutputByUrl = w3mClient.getW3mOutputByUrl(urlToSerach);
             List<String> extractedTitles = articlesParser.extractArticleTitles(w3mOutputByUrl);
             titles.addAll(extractedTitles);
             page++;
             if (extractedTitles.contains("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022")) {
-                isInitArticleReqached = true;
+                isInitArticleReached = true;
             }
         }
         return titles;
@@ -203,14 +213,13 @@ public class ArticleService {
     }
 
     public List<TickerDto> getAllActiveTickers() {
-        List<Ticker> tickers = tickerRepo.findAllByIsActiveTrue();
+        List<Ticker> tickers = tickerRepo.findTickerByIsActiveTrue();
         log.debug("Found {} tickers", tickers.size());
         List<TickerDto> tickerDtos = new ArrayList<>();
         for (Ticker t : tickers) {
             TickerDto tickerDto = TickerMapper.INSTANCE.tickerToTickerDto(t);
             tickerDtos.add(tickerDto);
         }
-        log.debug("Found {} tickers", tickerDtos.size());
         return tickerDtos;
     }
 }
