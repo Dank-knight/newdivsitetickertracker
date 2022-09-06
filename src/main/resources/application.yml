@@ -1,1 +1,5 @@
+logging:
+  level:
+    com.example: INFO
+
 website: https://dividendstockpile.com/

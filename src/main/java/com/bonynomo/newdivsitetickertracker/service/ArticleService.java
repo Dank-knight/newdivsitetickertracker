@@ -9,6 +9,7 @@ import com.bonynomo.newdivsitetickertracker.parse.ArticlesParser;
 import com.bonynomo.newdivsitetickertracker.repo.TickerRepo;
 import com.bonynomo.newdivsitetickertracker.util.SelfMadeJitter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -83,7 +84,7 @@ public class ArticleService {
         deleteAllTickers();
         saveTickersFromInitialArticle();
         List<String> allArticlesBeforeInitialArticle = getAllArticlesBeforeInitialArticle();
-        // todo stopped here. Should use few real titles to test in ArticleServiceTest line 46
+        log.debug("Found {} articles before initial article", allArticlesBeforeInitialArticle.size());
         List<String> reversedUrlsSoTheyAreInChronologicalOrder = prepareUrlsByArticles(allArticlesBeforeInitialArticle);
         for (String constructedUrl : reversedUrlsSoTheyAreInChronologicalOrder) {
             jitter.sleep30To80Sec();
@@ -93,11 +94,11 @@ public class ArticleService {
             List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
             List<Ticker> update = newUndervaluedTickers.get("Update");
             List<Ticker> set = newUndervaluedTickers.get("Set");
-            if (toBeSaved != null) {
+            if (CollectionUtils.isNotEmpty(toBeSaved)) {
                 save(toBeSaved);
-            } else if (update != null) {
+            } else if (CollectionUtils.isNotEmpty(update)) {
                 save(update);
-            } else if (set != null) {
+            } else if (CollectionUtils.isNotEmpty(set)) {
                 saveSetOfRelevantTickers(set);
             } else {
                 log.error("No tickers to be saved, updated or set");
@@ -167,6 +168,7 @@ public class ArticleService {
             if (page > 1) {
                 urlToSerach = this.url + "page/" + page;
             }
+            log.info("Url to search: {}", urlToSerach);
             jitter.sleep30To80Sec();
             String w3mOutputByUrl = w3mClient.getW3mOutputByUrl(urlToSerach);
             List<String> extractedTitles = articlesParser.extractArticleTitles(w3mOutputByUrl);

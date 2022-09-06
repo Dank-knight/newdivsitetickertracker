@@ -12,9 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,18 +39,23 @@ class ArticleServiceTest {
     @Test
     void when_InitMethodIsExecutedWithUpdateTypeOfTickers_Expect_SaveSetOfRelevantTickersNotExecuted() {
         ReflectionTestUtils.setField(articleService, "url",
-                "https://dividendstockpile.com/10-undervalued-dividend-growth-stocks-to-research-the-week-of-02-14-2022/");
-
+                "https://dividendstockpile.com/");
         when(w3mClient.getW3mOutputByUrl(anyString())).thenReturn("test");
-
-        when(articlesParser.extractArticleTitles(anyString())).thenReturn(List.of("title one", "title two",
-                "10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022"));
-
-        when(tickerRepo.findBySymbol(any())).thenReturn(new Ticker());
+        when(articlesParser.extractArticleTitles(anyString()))
+                .thenReturn(List.of("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022"));
+        Ticker aapl = Ticker.builder()
+                .symbol("AAPL")
+                .dateIntroduced("14.02.2022")
+                .isActive(false)
+                .build();
+        Map<String, List<Ticker>> newUndervaluedTickers = Map.of(
+                "Update", List.of(aapl),
+                "Save", Collections.emptyList(),
+                "Set", Collections.emptyList());
+        when(articlesParser.extractTickersFromPage(anyString())).thenReturn(newUndervaluedTickers);
 
         articleService.init();
 
-        verify(tickerRepo, times(0)).save(any(Ticker.class));
+        verify(tickerRepo, times(1)).findBySymbol("AAPL");
     }
-
 }
