@@ -65,7 +65,6 @@ public class ArticleService {
 
     public List<TickerDto> getAllTickers() {
         List<Ticker> tickers = tickerRepo.findAll();
-        log.debug("Found {} tickers", tickers.size());
         List<TickerDto> tickerDtos = new ArrayList<>();
         for (Ticker t : tickers) {
             TickerDto tickerDto = TickerMapper.INSTANCE.tickerToTickerDto(t);
@@ -171,7 +170,7 @@ public class ArticleService {
             log.info("Url to search: {}", urlToSerach);
             jitter.sleep30To80Sec();
             String w3mOutputByUrl = w3mClient.getW3mOutputByUrl(urlToSerach);
-            List<String> extractedTitles = articlesParser.extractArticleTitles(w3mOutputByUrl);
+            List<String> extractedTitles = articlesParser.extractUndervaluedDividendGrowthStocksArticleTitles(w3mOutputByUrl);
             titles.addAll(extractedTitles);
             page++;
             if (extractedTitles.contains("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022")) {
@@ -221,5 +220,11 @@ public class ArticleService {
             tickerDtos.add(tickerDto);
         }
         return tickerDtos;
+    }
+
+    public String getLastArticle() {
+        String w3mOutputByUrl = w3mClient.getW3mOutputByUrl(url);
+        String dirtyTitle = articlesParser.extractLatestArticleTitle(w3mOutputByUrl);
+        return dirtyTitle.trim();
     }
 }

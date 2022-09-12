@@ -41,7 +41,7 @@ class ArticleServiceTest {
         ReflectionTestUtils.setField(articleService, "url",
                 "https://dividendstockpile.com/");
         when(w3mClient.getW3mOutputByUrl(anyString())).thenReturn("test");
-        when(articlesParser.extractArticleTitles(anyString()))
+        when(articlesParser.extractUndervaluedDividendGrowthStocksArticleTitles(anyString()))
                 .thenReturn(List.of("10 Undervalued Dividend Growth Stocks To Research The Week of 02/14/2022"));
         Ticker aapl = Ticker.builder()
                 .symbol("AAPL")

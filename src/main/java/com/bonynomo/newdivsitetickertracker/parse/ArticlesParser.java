@@ -17,32 +17,32 @@ import java.util.stream.Collectors;
 @Component
 public class ArticlesParser {
 
-    public static final String NEW_ON_THE_LIST_THIS_WEEK = "New on the list this week:";
-    public static final String DISCLAIMER = "This list should be used to begin your research to determine if the stock meets";
-    public static final String STOCKS_LISTED = "Stocks Listed:";
-    public static final Set<String> ALL_LETTERS_IN_UPPER_CASE = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"));
-    public static Map<String, String> MONTH_NUMBER_BY_NAME;
+    private static final String NEW_ON_THE_LIST_THIS_WEEK = "New on the list this week:";
+    private static final String DISCLAIMER = "This list should be used to begin your research to determine if the stock meets";
+    private static final String STOCKS_LISTED = "Stocks Listed:";
+    private static final Set<String> ALL_LETTERS_IN_UPPER_CASE = new HashSet<>(Arrays.asList("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"));
+    private final Map<String, String> monthNumberByName;
 
     public ArticlesParser() {
-        MONTH_NUMBER_BY_NAME = new HashMap<>();
-        MONTH_NUMBER_BY_NAME.put("January", "01");
-        MONTH_NUMBER_BY_NAME.put("February", "02");
-        MONTH_NUMBER_BY_NAME.put("March", "03");
-        MONTH_NUMBER_BY_NAME.put("April", "04");
-        MONTH_NUMBER_BY_NAME.put("May", "05");
-        MONTH_NUMBER_BY_NAME.put("June", "06");
-        MONTH_NUMBER_BY_NAME.put("July", "07");
-        MONTH_NUMBER_BY_NAME.put("August", "08");
-        MONTH_NUMBER_BY_NAME.put("September", "09");
-        MONTH_NUMBER_BY_NAME.put("October", "10");
-        MONTH_NUMBER_BY_NAME.put("November", "11");
-        MONTH_NUMBER_BY_NAME.put("December", "12");
+        monthNumberByName = new HashMap<>();
+        monthNumberByName.put("January", "01");
+        monthNumberByName.put("February", "02");
+        monthNumberByName.put("March", "03");
+        monthNumberByName.put("April", "04");
+        monthNumberByName.put("May", "05");
+        monthNumberByName.put("June", "06");
+        monthNumberByName.put("July", "07");
+        monthNumberByName.put("August", "08");
+        monthNumberByName.put("September", "09");
+        monthNumberByName.put("October", "10");
+        monthNumberByName.put("November", "11");
+        monthNumberByName.put("December", "12");
     }
 
-    public List<String> extractArticleTitles(String pageAsString) {
-        List<String> allArticleLikeStrings = pageAsString.lines().filter(line -> line.matches("\\d+ Undervalued Dividend Growth Stocks.*") || line.matches("Undervalued Dividend Growth Stocks.*")).collect(Collectors.toList());
-        log.debug("Found {} article like strings", allArticleLikeStrings.size());
-        return cleanUpArticleTitles(allArticleLikeStrings);
+    public List<String> extractUndervaluedDividendGrowthStocksArticleTitles(String pageAsString) {
+        List<String> allArticlesAsStrings = pageAsString.lines().filter(line -> line.matches("\\d+ Undervalued Dividend Growth Stocks.*") || line.matches("Undervalued Dividend Growth Stocks.*")).collect(Collectors.toList());
+        log.debug("Found {} article like strings", allArticlesAsStrings.size());
+        return cleanUpArticleTitles(allArticlesAsStrings);
     }
 
     private List<String> cleanUpArticleTitles(List<String> titles) {
@@ -104,7 +104,7 @@ public class ArticlesParser {
         if (day.length() == 1) {
             day = "0" + day;
         }
-        String month = String.valueOf(MONTH_NUMBER_BY_NAME.get(split[0]));
+        String month = String.valueOf(monthNumberByName.get(split[0]));
         String year = split[2];
         return day + "." + month + "." + year;
     }
@@ -148,4 +148,15 @@ public class ArticlesParser {
         return pageAsString.substring(fromIndex, toIndex);
     }
 
+    public String extractLatestArticleTitle(String pageAsString) {
+        if (pageAsString.contains("Posted on") && pageAsString.contains("]")) {
+            int indexOfEndOfFirstArticle = pageAsString.indexOf("Posted on");
+            for (int i = indexOfEndOfFirstArticle; i >= 0; i--) {
+                if (pageAsString.charAt(i) == ']') {
+                    return pageAsString.substring(i + 1, indexOfEndOfFirstArticle);
+                }
+            }
+        }
+        throw new IllegalArgumentException("Could not find latest article title");
+    }
 }

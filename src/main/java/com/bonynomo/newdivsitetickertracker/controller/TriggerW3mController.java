@@ -31,4 +31,10 @@ public class TriggerW3mController {
         articleService.init();
         return ResponseEntity.ok("Init done");
     }
+
+    @GetMapping("/last")
+    public ResponseEntity<String> getLastArticle() {
+        String lastArticle = articleService.getLastArticle();
+        return ResponseEntity.ok(lastArticle);
+    }
 }
