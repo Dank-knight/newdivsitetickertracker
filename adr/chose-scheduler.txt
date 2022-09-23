@@ -29,7 +29,7 @@ Considered Options
 Evaluate Options
    Architecture Principles and Drivers | Option 1 | Option 2 | Option 3 |
     ---------------------------------- | -------- | -------- | -------- |
-    Simple                             |     -    |     -    |     +    |
+    Simple                             |     -    |     +    |     +    |
     ---------------------------------- | -------- | -------- | -------- |
     Easy to re-configure               |    +     |     +    |     +    |
     ---------------------------------- | -------- | -------- | -------- |
@@ -40,7 +40,7 @@ Evaluate Options
     + Positive, ! Warning, i Neutral, - Negative
 
 Decision (What is the change that we're proposing and/or doing?):
-    Go with @Scheduled annotation. It is simple and configurable. So @Autowired will work.
+    Go with creating custom jitter
 
 Consequences (What becomes easier or more difficult to do because of this change?):
-    I have some job that just works, created by example in the internet.
+    I have some job that just works, created by example in the internet win jitter what would add random delays.
