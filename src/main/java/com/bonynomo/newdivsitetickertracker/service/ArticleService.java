@@ -85,9 +85,10 @@ public class ArticleService {
         List<String> allArticlesBeforeInitialArticle = getAllArticlesBeforeInitialArticle();
         log.debug("Found {} articles before initial article", allArticlesBeforeInitialArticle.size());
         List<String> reversedUrlsSoTheyAreInChronologicalOrder = prepareUrlsByArticles(allArticlesBeforeInitialArticle);
+        log.debug("Starting to process {} articles", reversedUrlsSoTheyAreInChronologicalOrder);
         for (String constructedUrl : reversedUrlsSoTheyAreInChronologicalOrder) {
             jitter.sleep30To80Sec();
-            log.info("Constructed url: {}", constructedUrl);
+            log.debug("Constructed url: {}", constructedUrl);
             String pageAsString = w3mClient.getW3mOutputByUrl(constructedUrl);
             Map<String, List<Ticker>> newUndervaluedTickers = articlesParser.extractTickersFromPage(pageAsString);
             List<Ticker> toBeSaved = newUndervaluedTickers.get("Save");
@@ -98,7 +99,7 @@ public class ArticleService {
             } else if (CollectionUtils.isNotEmpty(update)) {
                 save(update);
             } else if (CollectionUtils.isNotEmpty(set)) {
-                saveSetOfRelevantTickers(set);
+                save(set);
             } else {
                 log.error("No tickers to be saved, updated or set");
                 throw new UnableToInitTickersException("No tickers to be saved, updated or set");
@@ -116,17 +117,6 @@ public class ArticleService {
                 tickerRepo.save(bySymbol);
             }
         }
-    }
-
-    private void saveSetOfRelevantTickers(List<Ticker> set) {
-        List<Ticker> allPresumablyActiveTickers = tickerRepo.findTickerByIsActiveTrue();
-        for (Ticker ticker : allPresumablyActiveTickers) {
-            if (!set.contains(ticker)) {
-                ticker.setIsActive(false);
-                tickerRepo.save(ticker);
-            }
-        }
-        tickerRepo.saveAll(set);
     }
 
     private List<String> prepareUrlsByArticles(List<String> allArticlesBeforeInitialArticle) {
